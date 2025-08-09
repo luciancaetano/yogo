@@ -22,7 +22,7 @@ Generate Go client code directly from your `yogo.yml` specification, making API 
 ## Installation
 
 ```bash
-go install github.com/luciancaetano/yogo@latest
+go install github.com/luciancaetano/yogo/cmd/main@latest
 ````
 
 ---
