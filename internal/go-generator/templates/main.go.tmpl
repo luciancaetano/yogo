@@ -56,7 +56,7 @@ type {{$endpoint.Name}}Response{{$status}} struct {
     {{end}}
 }
     {{end}}
-    // {{.Name}} chama o endpoint {{.Method}} {{.Path}}.
+
 func (c *Client) {{.Name}}(ctx context.Context{{if .Request}}, body {{.Name}}Request{{end}}{{range .PathParams}}, {{.}} any{{end}}) (any, int, error) {
 	url := fmt.Sprintf("%s{{.FmtPath}}", c.baseURL{{range .PathParams}}, {{.}}{{end}})
 
