@@ -1,0 +1,102 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+// ==========================
+// Client
+// ==========================
+
+type Client struct {
+	baseURL    string
+	httpClient *http.Client
+	headers    map[string]string
+}
+
+// NewClient cria um cliente para a API.
+// Exemplo: c := NewClient("https://api.exemplo.com", nil)
+func NewClient(baseURL string, httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return &Client{
+		baseURL:    strings.TrimRight(baseURL, "/"),
+		httpClient: httpClient,
+		headers:    make(map[string]string),
+	}
+}
+
+// SetHeader adiciona/atualiza um header global no cliente
+func (c *Client) SetHeader(key, value string) {
+	c.headers[key] = value
+}
+
+{{range .Endpoints}}
+    // ==========================
+    // {{.Name}}
+    // ==========================
+
+    {{if .Request}}
+type {{.Name}}Request struct {
+    {{range $field, $type := .Request}}
+    {{title $field}} {{$type}} `json:"{{$field}}"`
+    {{end}}
+}
+    {{end}}
+
+    {{ $endpoint := . }}
+    {{range $status, $fields := .Responses}}
+type {{$endpoint.Name}}Response{{$status}} struct {
+    {{range $field, $type := $fields}}    {{title $field}} {{$type}} `json:"{{$field}}"`
+    {{end}}
+}
+    {{end}}
+    // {{.Name}} chama o endpoint {{.Method}} {{.Path}}.
+func (c *Client) {{.Name}}(ctx context.Context{{if .Request}}, body {{.Name}}Request{{end}}{{range .PathParams}}, {{.}} any{{end}}) (any, int, error) {
+	url := fmt.Sprintf("%s{{.FmtPath}}", c.baseURL{{range .PathParams}}, {{.}}{{end}})
+
+	{{if .Request}}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, 0, err
+	}
+	req, err := http.NewRequestWithContext(ctx, "{{.Method}}", url, strings.NewReader(string(jsonBody)))
+	req.Header.Set("Content-Type", "application/json")
+	{{else}}
+	req, err := http.NewRequestWithContext(ctx, "{{.Method}}", url, nil)
+	{{end}}
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for k, v := range c.headers {
+		req.Header.Set(k, v)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	{{range $status, $fields := .Responses}}
+	case {{$status}}:
+		var data{{$status}} {{$endpoint.Name}}Response{{$status}}
+		if err := json.NewDecoder(resp.Body).Decode(&data{{$status}}); err != nil {
+			return nil, {{$status}}, err
+		}
+		return &data{{$status}}, {{$status}}, nil
+	{{end}}
+	default:
+		body, _ := io.ReadAll(resp.Body)
+		return string(body), resp.StatusCode, nil
+	}
+}
+{{end}}
