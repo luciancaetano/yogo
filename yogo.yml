@@ -1,0 +1,30 @@
+
+version: 1.0.0
+
+endpoints:
+  - name: GetUser
+    method: GET
+    path: /users/{id}
+    responses:
+      200:
+        id: int
+        name: string
+        email: string
+      404:
+        error: string
+  - name: CreateUser
+    method: POST
+    path: /users
+    request:
+      name: string
+      email: string
+    responses:
+      201:
+        id: int
+      400:
+        error: string
+
+generators:
+  - name: go
+    package: apiclient
+    output: ./gen/generate_api.go

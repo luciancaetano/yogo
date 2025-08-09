@@ -45,8 +45,7 @@ func (c *Client) SetHeader(key, value string) {
     {{if .Request}}
 type {{.Name}}Request struct {
     {{range $field, $type := .Request}}
-    {{title $field}} {{$type}} `json:"{{$field}}"`
-    {{end}}
+    {{title $field}} {{$type}} `json:"{{$field}}"`    {{end}}
 }
     {{end}}
 

@@ -99,8 +99,7 @@ func (c *Client) GetUser(ctx context.Context, id any) (any, int, error) {
 
 type CreateUserRequest struct {
 	Email string `json:"email"`
-
-	Name string `json:"name"`
+	Name  string `json:"name"`
 }
 
 type CreateUserResponse201 struct {
