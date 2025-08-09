@@ -1,6 +1,6 @@
 # YOGO - REST API Client Generator
 
-<img src="yogo.png" alt="YOGO" width="128" style="vertical-align:middle" />
+<img src="yogo.png" alt="YOGO" width="512" style="vertical-align:middle" />
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/luciancaetano/yogo.svg)](https://pkg.go.dev/github.com/luciancaetano/yogo)  
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.20-blue.svg)](https://golang.org/doc/go1.20)
